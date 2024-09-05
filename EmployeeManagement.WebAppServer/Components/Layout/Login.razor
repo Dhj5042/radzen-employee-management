@@ -1,0 +1,104 @@
+﻿@inherits LayoutComponentBase
+@page "/login"
+@using System.ComponentModel.DataAnnotations
+@inject IUserService UserService
+@inject NavigationManager Navigation
+@inject NotificationService NotificationService
+@rendermode InteractiveServer
+
+<section class="vh-100">
+  <div class="container-fluid h-custom">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-md-9 col-lg-2 col-xl-4">
+        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+          class="img-fluid" alt="Sample image">
+      </div>
+      <div class="col-md-8 col-lg-10 col-xl-8 offset-xl-1">
+                <RadzenTemplateForm Data="@userModel" Submit="@((UserModel args) => { OnSubmit(); })">
+
+         <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-6">
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenLabel Text="Username" Component="Username" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenTextBox @bind-Value="userModel.Username" Name="Username" Style="width:100%" />
+                        <RadzenRequiredValidator Component="Username" Text="Username is required" Style="display:block" />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-6">
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenLabel Text="Password" Component="Password" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenPassword @bind-Value="userModel.Password" Name="Password" Style="width:100%" />
+                        <RadzenRequiredValidator Component="Password" Text="Password is required" Style="display:block" />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenColumn>
+        </RadzenRow>
+
+
+        <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-6">
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="8">
+                                    <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="login" Text="Login" />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenColumn>
+        </RadzenRow>
+
+    </RadzenTemplateForm>
+    </div> 
+  </div>
+  </div>
+</section>
+@code {
+    private UserModel userModel = new UserModel();
+
+    public class UserModel
+    {
+        [StringLength(50, MinimumLength = 3)]
+        public string Username { get; set; }
+        [StringLength(50, MinimumLength = 3)]
+        public string Password { get; set; }
+    }
+
+    private async Task OnSubmit()
+    {
+        var user = await UserService.AuthenticateAsync(userModel.Username, userModel.Password);
+
+        if (user != null)
+        {
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Login Successful",
+                    Detail = "Welcome back!",
+                    Duration = 3000
+                });
+
+            // Navigate to a different page upon successful login
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Login Failed",
+                    Detail = "Invalid username or password.",
+                    Duration = 3000
+                });
+        }
+    }
+  
+}
+

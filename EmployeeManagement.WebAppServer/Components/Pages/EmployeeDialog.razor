@@ -1,0 +1,212 @@
+﻿@page "/employe-dialog/{Employee}"
+@inject DialogService DialogService
+@inject IEmployeeService EmployeeService
+@inject NotificationService NotificationService
+
+
+
+<RadzenTemplateForm Data="@Employee" Submit="@((Employee args) => { HandleValidSubmit(); })">
+        <RadzenFieldset Text="Employee Info">
+
+            <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+                <RadzenColumn Size="12" SizeMD="6">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenLabel Text="First Name" Component="FirstName" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenTextBox Style="width: 100%;" Name="FirstName" @bind-Value="Employee.FirstName" />
+                        <RadzenRequiredValidator Component="FirstName" Text="First name is required" Style="display:block" />
+                    </RadzenColumn>
+                </RadzenRow>
+                </RadzenColumn>
+
+                 <RadzenColumn Size="12" SizeMD="6">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenLabel Text="Date of birth" Component="DateOfBirth" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenDatePicker @bind-Value="Employee.DateOfBirth" Data="@Employee.DateOfBirth" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" Name="DatePickerWithTime" />
+@*                         <RadzenRequiredValidator Component="DateOfBirth" Text="Date of birth is required" Style="display:block" />
+ *@
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenColumn>
+             </RadzenRow>
+
+            <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenLabel Text="Last Name" Component="LastName" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="8">
+                            <RadzenTextBox Style="width: 100%;" Name="LastName" @bind-Value="Employee.LastName" />
+                            <RadzenRequiredValidator Component="LastName" Text="Last name is required" Style="display:block" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenColumn>
+
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenLabel Text="Date of joining" Component="DateOfJoining" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenDatePicker @bind-Value="Employee.DateOfJoining" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" Name="DatePickerWithTime" />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenColumn>
+            </RadzenRow>
+
+            <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenLabel Text="Gender" Component="Gender" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenDropDown @bind-Value="Employee.Gender" Name="Gender" Data="@genderOptions" />
+                        <RadzenRequiredValidator Component="Gender" Text="Address is required" Style="display:block" />
+
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenColumn>
+
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenLabel Text="Email" Component="Email" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenTextBox Name="Email" @bind-Value=@Employee.Email />
+                        <RadzenRequiredValidator Component="Email" Text="Email is required" Style="display:block" />
+                        <RadzenEmailValidator  Component="Email" Text="Enter email" Style="display:block" />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenColumn>
+        </RadzenRow>
+
+            <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenLabel Text="Address" Component="Address" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenTextArea @bind-Value="Employee.Address" Name="Address" Data="@Employee.Address" />
+                        <RadzenRequiredValidator Component="Address" Text="Address is required" Style="display:block" />
+
+                    </RadzenColumn>
+                    </RadzenRow>
+                </RadzenColumn>
+
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenLabel Text="Department" Component="Department" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenDropDown @bind-Value="Employee.DepartmentId" Data="@departments" TextProperty="DepartmentName" ValueProperty="DepartmentId" Placeholder="Select Department" Name="Department" />
+                        <RadzenRequiredValidator Component="Department" Text="Department is required" Style="display:block" />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenColumn>
+            </RadzenRow>
+
+            <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenLabel Text="City" Component="City" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenDropDown @bind-Value="Employee.CityId" Data="@cities" TextProperty="CityName" ValueProperty="CityId" Placeholder="Select city" Name="City" />
+                        <RadzenRequiredValidator Component="City" Text="Address is required" Style="display:block" />
+
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenColumn>
+
+               <RadzenColumn Size="12" SizeMD="4">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenLabel Text="Mobile No" Component="no" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenTextBox Style="width: 100%;" Name="Mobile No" @bind-Value="Employee.PhoneNumber" Data="@Employee.PhoneNumber" />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenColumn>
+
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenLabel Text="Salary" Component="Salary" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenNumeric Style="width: 100%;" Name="Salery" @bind-Value="Employee.Salary" Data="@Employee.Salary" />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenColumn>
+        </RadzenRow>
+
+
+        </RadzenFieldset>
+
+       
+         <RadzenRow Gap="1rem" class="rz-p-0 rz-p-lg-2">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" class="rz-mt-8 rz-mb-4">
+                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@((Employee?.EmployeeId == 0) ? "Create" : "Update")" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Large" Icon="cancel" Text="Cancel" Click="@((args) => DialogService.Close(true))" />
+        </RadzenStack>
+        </RadzenRow>
+
+    </RadzenTemplateForm>
+
+@code {
+    DateTime? todayDate = DateTime.Now;
+    [Parameter] public Employee Employee { get; set; }
+    public string DialogTitle { get; set; }
+    private IEnumerable<City> cities;
+    private IEnumerable<Department> departments;
+    private IEnumerable<string> genderOptions = new List<string> { "Male", "Female" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        cities = await EmployeeService.GetCities();
+        departments = await EmployeeService.GetDepartments();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        string employeeMessage = string.Empty;
+        try
+        {
+            if (Employee.EmployeeId == 0)
+            {
+                employeeMessage = "created";
+                await EmployeeService.Create(Employee); 
+            }
+            else
+            {
+                employeeMessage = "updates";
+                await EmployeeService.Edit(Employee);
+            }
+        }
+        catch(Exception e)
+        {
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Employee", Detail = $"{e.Message}", Duration = 4000 });
+        }
+        finally
+        {
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Employee", Detail = $"Employee {employeeMessage} successfully", Duration = 4000 });
+            DialogService.Close(); // Close the dialog after submission
+        }
+    }
+    void ShowNotification(NotificationMessage message)
+    {
+        NotificationService.Notify(message);
+    }
+}

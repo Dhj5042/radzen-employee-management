@@ -1,0 +1,111 @@
+﻿@page "/employeeRadzen"
+@inject IEmployeeService EmployeeService
+@inject NavigationManager Navigation
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@rendermode InteractiveServer
+
+
+
+<h3>Employees</h3
+<div class="m-2 p-2">
+    <RadzenButton Text="Create New Employee" ButtonStyle="ButtonStyle.Primary" Click=@(args => OpenCreateModal()) class="mb-3" />
+    <RadzenGrid @ref="employeeGrid" Data="@employees" TItem="Employee" ColumnWidth="140px" AllowFiltering="true" AllowSorting="true" AllowColumnResize="true" AllowPaging="true" PageSize="5">
+        <Columns>
+            <RadzenGridColumn TItem="Employee" Property="FirstName" Title="FirstName" />
+            <RadzenGridColumn TItem="Employee" Property="LastName" Title="LastName" />
+            <RadzenGridColumn TItem="Employee" Property="City.CityName" Title="City" />
+            <RadzenGridColumn TItem="Employee" Property="Department.DepartmentName" Title="Department" />
+            <RadzenGridColumn TItem="Employee" Property="Gender" Title="Gender" />
+            <RadzenGridColumn TItem="Employee" Property="DateOfBirth" Title="DateOfBirth" />
+            <RadzenGridColumn TItem="Employee" Property="Email" Title="Email" />
+            <RadzenGridColumn TItem="Employee" Width="200px">
+                <Template>
+                    @{
+                        var employee = (Employee)context;
+                    }
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Warning" Click="() => OpenEditModal(employee.EmployeeId)" />
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click=@(() => ConfirmDelete(employee.EmployeeId)) />
+                </Template>
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+</div>
+
+@code {
+    private IEnumerable<Employee> employees;
+    private IEnumerable<City> cities;
+    private IEnumerable<Department> departments;
+    private Employee Employee = new Employee();
+    private RadzenGrid<Employee> employeeGrid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ReloadData();
+    }
+
+    async Task ReloadData()
+    {
+        // Your logic to reload the data, e.g., fetching the updated list of employees
+        // Example:
+        employees = await EmployeeService.GetEmployeeList();
+        cities = await EmployeeService.GetCities();
+        departments = await EmployeeService.GetDepartments();
+        await employeeGrid.Reload();
+        StateHasChanged(); // Notify the UI to refresh
+    }
+
+
+
+    private async Task  OpenCreateModal()
+    {
+        Employee = new Employee(); // Clear the form for creating a new employee
+        await  DialogService.OpenAsync<EmployeeDialog>("Craete Employee", new Dictionary<string, object> { { "Employee", Employee } },new DialogOptions() 
+               {
+                   Resizable = true, 
+                   Draggable = true,
+                   Width = "70%",
+                   Height= "80%"
+                });
+       await ReloadData();
+    }
+
+    private async Task OpenEditModal(int id)
+    {
+        Employee = await EmployeeService.Details(id);
+        await  DialogService.OpenAsync<EmployeeDialog>("Modify Employee", new Dictionary<string, object> { { "Employee", Employee } },new DialogOptions() 
+                   {
+                       Resizable = true, 
+                       Draggable = true,
+                       Width = "70%",
+                       Height= "80%"
+                    });    
+    }
+
+    void ConfirmDelete(int employeeId)
+    {
+        DialogService.Confirm("Are you sure?", "Delete", new ConfirmOptions() 
+        { 
+            OkButtonText = "Yes", 
+            CancelButtonText = "No" 
+        }).ContinueWith(async confirmed => 
+        {
+            if (confirmed.Result == true)
+            {
+                await DeleteEmployee(employeeId);
+                await ReloadData();
+            }
+        });
+    }
+
+    private async Task DeleteEmployee(int id)
+    {
+        await EmployeeService.Delete(id);
+        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Employee", Detail = "Employee deleted successfully", Duration = 4000 });
+    }
+
+     void ShowNotification(NotificationMessage message)
+    {
+        NotificationService.Notify(message);
+    }
+}
